@@ -6,8 +6,8 @@ const mysql = require('mysql2/promise')
 
 // TODO: change the credentials to fit your own
 // if user does not have the right to create, run (as root): GRANT ALL PRIVILEGES ON *.* TO 'app'@'localhost';
-const DB_USERNAME = 'app1'
-const DB_PASSWORD = 'welcome123'
+const DB_USERNAME = 'root'
+const DB_PASSWORD = 'Mihaelat20'
 
 let conn
 
@@ -80,12 +80,36 @@ app.get('/food-items', async (req, res) => {
 })
 
 app.post('/food-items', async (req, res) => {
+    app.post('/food-items', async (req, res) => {
     try{
         // TODO
+        const foodItem=req.body;
+        if (Object.keys(req.body).length === 0) {
+            res.status(400).json({message: 'body is missing'});
+        } else {
+            if(!foodItem.name || !foodItem.category || !foodItem.calories) {
+                res.status(400).json({message: 'malformed request'});
+            } else {
+                if (foodItem.calories < 0) {
+                    res.status(400).json({message: 'calories should be a positive number'})
+                } else {
+                    if (foodItem.category.length < 4 || foodItem.category.length > 9) {
+                        res.status(400).json({message: 'not a valid category'});
+                    } else {
+                        const result= FoodItem.create(foodItem);
+                        res.status(201).json({message: 'created'});
+                    }
+                }
+            }
     }
+}
     catch(err){
         // TODO
+        console.warn(err.stack)
+        res.status(500).json({message : 'server error'})    
     }
+})
+
 })
 
 module.exports = app
